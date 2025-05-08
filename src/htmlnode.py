@@ -45,6 +45,8 @@ class ParentNode(HTMLNode):
             raise ValueError("invalid HTML: no tag")
         if self.children is None:
             raise ValueError("invalid HTML: the children are missing")
+        if not isinstance(self.children, list):
+            raise ValueError("invalid HTML: children argument must be a list")
         html_text_list = []
         for child in self.children:
             html_text_list.append(child.to_html())
