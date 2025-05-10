@@ -3,6 +3,7 @@ import unittest
 from htmlnode import HTMLNode, LeafNode, ParentNode
 from textnode import TextNode, TextType
 from node_conversion import *
+from inline_markdown import *
 
 class TestHTMLNode(unittest.TestCase):
     def test_props_to_html_1(self):
@@ -144,6 +145,54 @@ class TestHTMLConversion(unittest.TestCase):
         html_node = text_node_to_html_node(node)
         self.assertEqual(html_node.tag, "code")
         self.assertEqual(html_node.value, "This is a code text node")
+
+class TestSplitDeliminator(unittest.TestCase):
+    def test_text_with_code(self):
+        node = TextNode("This is text with a `code block` word", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
+        self.assertEqual(new_nodes, [
+            TextNode("This is text with a ", TextType.TEXT),
+            TextNode("code block", TextType.CODE),
+            TextNode(" word", TextType.TEXT),
+        ])
+
+    def test_text_with_bold(self):
+        node = TextNode("This is **text** with a **bold word**", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+        self.assertEqual(new_nodes, [
+            TextNode("This is ", TextType.TEXT),
+            TextNode("text", TextType.BOLD),
+            TextNode(" with a ", TextType.TEXT),
+            TextNode("bold word", TextType.BOLD),
+        ])
+
+    def test_text_with_italics(self):
+        node = TextNode("_This_ is text with leading and trailing _italic words_", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "_", TextType.ITALIC)
+        self.assertEqual(new_nodes, [        
+            TextNode("This", TextType.ITALIC),
+            TextNode(" is text with leading and trailing ", TextType.TEXT),
+            TextNode("italic words", TextType.ITALIC),
+        ])
+
+    def test_text_with_all_bold(self):
+        node = TextNode("This is all bold words", TextType.BOLD)
+        new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+        self.assertEqual(new_nodes, [TextNode("This is all bold words", TextType.BOLD)])
+
+    def test_text_with_two_nodes(self):
+        node = TextNode("This is all bold words", TextType.BOLD)
+        node2 = TextNode("This is a **bold** word", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node, node2], "**", TextType.BOLD)
+        self.assertEqual(new_nodes, [TextNode("This is all bold words", TextType.BOLD),
+                                    TextNode("This is a ", TextType.TEXT),
+                                    TextNode("bold", TextType.BOLD),
+                                    TextNode(" word", TextType.TEXT)])
+        
+    def test_text_with_missing(self):
+        node = TextNode("This is text with a `code block word", TextType.TEXT)
+        with self.assertRaises(Exception):
+            split_nodes_delimiter([node], "`", TextType.CODE)
 
 if __name__ == "__main__":
     unittest.main()
