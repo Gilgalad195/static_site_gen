@@ -263,14 +263,41 @@ class TextRegexNonsense(unittest.TestCase):
                 [TextNode("This is text with a link ", TextType.TEXT),
                 TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
                 TextNode("to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"),], new_nodes)
-        
-    def test_split_images_bad_markdown(self):
-        node = TextNode(
-            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png and another ![second image](https://i.imgur.com/3elNhQu.png)",
-            TextType.TEXT,
+
+    def test_split_text_to_multi_nodes(self):
+        node = TextNode("This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)", TextType.TEXT)
+        new_nodes = text_to_textnodes([node])
+        self.assertEqual([
+            TextNode("This is ", TextType.TEXT),
+            TextNode("text", TextType.BOLD),
+            TextNode(" with an ", TextType.TEXT),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" word and a ", TextType.TEXT),
+            TextNode("code block", TextType.CODE),
+            TextNode(" and an ", TextType.TEXT),
+            TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"),
+            TextNode(" and a ", TextType.TEXT),
+            TextNode("link", TextType.LINK, "https://boot.dev"),
+            ], new_nodes
         )
-        with self.assertRaises(ValueError):
-            split_nodes_image([node])
+
+    def test_split_text_to_multi_nodes_2(self):
+        node = TextNode("The _wizard bear_ conjured a **magical spell** and transformed the `code` into working functions. [Follow the path](https://example.com) to find the ![hidden treasure](https://example.com/treasure.jpg) beneath the ancient oak.", TextType.TEXT)
+        new_nodes = text_to_textnodes([node])
+        self.assertEqual([
+            TextNode("The ", TextType.TEXT),
+            TextNode("wizard bear", TextType.ITALIC),
+            TextNode(" conjured a ", TextType.TEXT),
+            TextNode("magical spell", TextType.BOLD),
+            TextNode(" and transformed the ", TextType.TEXT),
+            TextNode("code", TextType.CODE),
+            TextNode(" into working functions. ", TextType.TEXT),
+            TextNode("Follow the path", TextType.LINK, "https://example.com"),
+            TextNode(" to find the ", TextType.TEXT),
+            TextNode("hidden treasure", TextType.IMAGE, "https://example.com/treasure.jpg"),
+            TextNode(" beneath the ancient oak.", TextType.TEXT),
+            ], new_nodes
+        )
 
 if __name__ == "__main__":
     unittest.main()
