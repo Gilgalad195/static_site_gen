@@ -4,6 +4,7 @@ from htmlnode import HTMLNode, LeafNode, ParentNode
 from textnode import TextNode, TextType
 from node_conversion import *
 from inline_markdown import *
+from block_markdown import *
 
 class TestHTMLNode(unittest.TestCase):
     def test_props_to_html_1(self):
@@ -298,6 +299,93 @@ class TextRegexNonsense(unittest.TestCase):
             TextNode(" beneath the ancient oak.", TextType.TEXT),
             ], new_nodes
         )
+
+class TextBlockMarkdown(unittest.TestCase):
+    def test_markdown_to_blocks(self):
+        md = """
+This is **bolded** paragraph
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+- This is a list
+- with items
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "This is **bolded** paragraph",
+                "This is another paragraph with _italic_ text and `code` here\nThis is the same paragraph on a new line",
+                "- This is a list\n- with items",
+            ],
+        )
+
+    def test_markdown_to_blocks_2(self):
+        md = """
+**Bold text** can be useful for emphasizing important points. _Italic text_ adds subtle emphasis, while `inline code` is perfect for highlighting snippets of code or commands.
+
+### Heading Example
+
+Lists help organize ideas:
+
+- First item
+- Second item
+- Third item
+"""
+        blocks = markdown_to_blocks(md)
+        self.assertEqual(
+            blocks,
+            [
+                "**Bold text** can be useful for emphasizing important points. _Italic text_ adds subtle emphasis, while `inline code` is perfect for highlighting snippets of code or commands.",
+                "### Heading Example",
+                "Lists help organize ideas:",
+                "- First item\n- Second item\n- Third item"
+            ],
+        )
+
+    def test_block_to_blocktypes_paragraph(self):
+        md = "**Bold text** can be useful for emphasizing important points. _Italic text_ adds subtle emphasis, while `inline code` is perfect for highlighting snippets of code or commands."
+
+        block_type = block_to_block_type(md)
+        self.assertEqual(BlockType.PARAGRAPH, block_type)
+
+    def test_block_to_blocktypes_heading(self):
+        md = "### Heading Example"
+
+        block_type = block_to_block_type(md)
+        self.assertEqual(BlockType.HEADING, block_type)
+
+    def test_block_to_blocktypes_code(self):
+        md = "``` Example ```"
+
+        block_type = block_to_block_type(md)
+        self.assertEqual(BlockType.CODE, block_type)
+    
+    def test_block_to_blocktypes_quote(self):
+        md = """
+> Block quote Example
+> still quoting
+> another line of quote in the same block
+"""
+        block_type = block_to_block_type(md)
+        self.assertEqual(BlockType.QUOTE, block_type)
+
+    def test_block_to_blocktypes_quote(self):
+        md = """
+- unordered list Example
+- still listing
+- another line of list in the same block
+"""
+        block_type = block_to_block_type(md)
+        self.assertEqual(BlockType.UNORDERED_LIST, block_type)
+
+    def test_block_to_blocktypes_quote(self):
+        md = """1. ordered list Example
+2. still listing
+3. another line of list in the same block"""
+        block_type = block_to_block_type(md)
+        self.assertEqual(BlockType.ORDERED_LIST, block_type)
 
 if __name__ == "__main__":
     unittest.main()
