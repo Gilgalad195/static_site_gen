@@ -74,7 +74,10 @@ def markdown_to_html_node(markdown):
             node = ParentNode("ul", new_lines)
             new_nodes.append(node)
         if block_type == BlockType.ORDERED_LIST:
-            pass
+            old_lines = block.split("\n")
+            new_lines = list_to_children(old_lines)
+            node = ParentNode("ul", new_lines)
+            new_nodes.append(node)
 
 def text_to_children(text):
     text_nodes = text_to_textnodes(text)
@@ -87,8 +90,14 @@ def text_to_children(text):
 def list_to_children(old_lines):
     new_lines = []
     for line in old_lines:     
-        child_nodes = text_to_children(line[2:])
-        node = ParentNode("li", child_nodes)
-        new_lines.append(node)
+        if line.startswith("- "):
+            child_nodes = text_to_children(line[2:].strip())
+            node = ParentNode("li", child_nodes)
+            new_lines.append(node)
+        else:
+            stripped_line = re.sub(r"^\d+\. ", "", line)
+            child_nodes = text_to_children(stripped_line.strip())
+            node = ParentNode("li", child_nodes)
+            new_lines.append(node)
     return new_lines
     
