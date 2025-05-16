@@ -53,11 +53,13 @@ def markdown_to_html_node(markdown):
     for block in markdown_blocks:
         block_type = block_to_block_type(block)
         if block_type == BlockType.PARAGRAPH:
-            child_nodes = text_to_children(block)
+            strip_new_lines = re.sub(r"\n", " ", block)
+            child_nodes = text_to_children(strip_new_lines)
             node = ParentNode("p", child_nodes)
             new_nodes.append(node)
         if block_type == BlockType.HEADING:
-            child_nodes = text_to_children(block)
+            strip_new_lines = re.sub(r"\n", " ", block)
+            child_nodes = text_to_children(strip_new_lines)
             matches = re.findall(r"^#+", block)
             i = len(matches[0])
             node = ParentNode(f"h{i}", child_nodes)
@@ -67,7 +69,12 @@ def markdown_to_html_node(markdown):
             node = ParentNode("blockquote", child_nodes)
             new_nodes.append(node)
         if block_type == BlockType.CODE:
-            pass
+            lines = block.splitlines()
+            code_lines = lines[1:-1]
+            code_text = "\n".join(code_lines) + "\n"
+            node = TextNode(code_text, TextType.CODE)
+            pre_node = ParentNode("pre", [text_node_to_html_node(node)])
+            new_nodes.append(pre_node)
         if block_type == BlockType.UNORDERED_LIST:
             old_lines = block.split("\n")
             new_lines = list_to_children(old_lines)
@@ -76,8 +83,10 @@ def markdown_to_html_node(markdown):
         if block_type == BlockType.ORDERED_LIST:
             old_lines = block.split("\n")
             new_lines = list_to_children(old_lines)
-            node = ParentNode("ul", new_lines)
+            node = ParentNode("ol", new_lines)
             new_nodes.append(node)
+    div_node = ParentNode("div", new_nodes)
+    return div_node
 
 def text_to_children(text):
     text_nodes = text_to_textnodes(text)

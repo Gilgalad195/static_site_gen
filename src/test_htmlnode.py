@@ -266,8 +266,8 @@ class TextRegexNonsense(unittest.TestCase):
                 TextNode("to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev"),], new_nodes)
 
     def test_split_text_to_multi_nodes(self):
-        node = TextNode("This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)", TextType.TEXT)
-        new_nodes = text_to_textnodes([node])
+        text = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+        new_nodes = text_to_textnodes(text)
         self.assertEqual([
             TextNode("This is ", TextType.TEXT),
             TextNode("text", TextType.BOLD),
@@ -283,8 +283,8 @@ class TextRegexNonsense(unittest.TestCase):
         )
 
     def test_split_text_to_multi_nodes_2(self):
-        node = TextNode("The _wizard bear_ conjured a **magical spell** and transformed the `code` into working functions. [Follow the path](https://example.com) to find the ![hidden treasure](https://example.com/treasure.jpg) beneath the ancient oak.", TextType.TEXT)
-        new_nodes = text_to_textnodes([node])
+        text = "The _wizard bear_ conjured a **magical spell** and transformed the `code` into working functions. [Follow the path](https://example.com) to find the ![hidden treasure](https://example.com/treasure.jpg) beneath the ancient oak."
+        new_nodes = text_to_textnodes(text)
         self.assertEqual([
             TextNode("The ", TextType.TEXT),
             TextNode("wizard bear", TextType.ITALIC),
@@ -386,6 +386,38 @@ Lists help organize ideas:
 3. another line of list in the same block"""
         block_type = block_to_block_type(md)
         self.assertEqual(BlockType.ORDERED_LIST, block_type)
+
+    def test_paragraphs(self):
+        md = """
+This is **bolded** paragraph
+text in a p
+tag here
+
+This is another paragraph with _italic_ text and `code` here
+
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+        html,
+        "<div><p>This is <b>bolded</b> paragraph text in a p tag here</p><p>This is another paragraph with <i>italic</i> text and <code>code</code> here</p></div>",
+    )
+
+    def test_codeblock(self):
+        md = """
+```
+This is text that _should_ remain
+the **same** even with inline stuff
+```
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+        html,
+        "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
+    )
 
 if __name__ == "__main__":
     unittest.main()
