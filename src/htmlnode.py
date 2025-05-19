@@ -50,7 +50,8 @@ class ParentNode(HTMLNode):
         html_text_list = []
         for child in self.children:
             html_text_list.append(child.to_html())
-        return f"<{self.tag}{self.props_tohtml()}>{"".join(html_text_list)}</{self.tag}>"
+            joined_html_list = "".join(html_text_list)
+        return f"<{self.tag}{self.props_tohtml()}>{joined_html_list}</{self.tag}>"
 
     def __repr__(self):
         return f"ParentNode({self.tag}, {self.children}, {self.props})"
