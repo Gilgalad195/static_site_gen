@@ -67,7 +67,7 @@ def markdown_to_html_node(markdown):
             new_nodes.append(node)
         if block_type == BlockType.QUOTE:
             lines = block.split("\n")
-            cleaned_lines = [line[1:].strip() if line.startswith(">") else line for line in lines]
+            cleaned_lines = list(map(lambda line: line[1:].strip(), lines))
             cleaned_block = " ".join(cleaned_lines)
             child_nodes = text_to_children(cleaned_block)
             node = ParentNode("blockquote", child_nodes)
