@@ -126,7 +126,7 @@ class TestHTMLConversion(unittest.TestCase):
         node = TextNode("This is an image", TextType.IMAGE, "bootdev.png")
         html_node = text_node_to_html_node(node)
         self.assertEqual(html_node.tag, "img")
-        self.assertEqual(html_node.value, None)
+        self.assertEqual(html_node.value, "")
         self.assertEqual(html_node.props, {"src":"bootdev.png", "alt":"This is an image"})
 
     def test_italic(self):
