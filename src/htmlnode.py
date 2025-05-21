@@ -48,9 +48,10 @@ class ParentNode(HTMLNode):
         if not isinstance(self.children, list):
             raise ValueError("invalid HTML: children argument must be a list")
         html_text_list = []
-        for child in self.children:
+        for i, child in enumerate(self.children):
+            #print(f"Processing child {i}: {repr(child)}")
             html_text_list.append(child.to_html())
-            joined_html_list = "".join(html_text_list)
+        joined_html_list = "".join(html_text_list)
         return f"<{self.tag}{self.props_tohtml()}>{joined_html_list}</{self.tag}>"
 
     def __repr__(self):

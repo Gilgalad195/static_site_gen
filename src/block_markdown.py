@@ -59,13 +59,17 @@ def markdown_to_html_node(markdown):
             new_nodes.append(node)
         if block_type == BlockType.HEADING:
             strip_new_lines = re.sub(r"\n", " ", block)
-            child_nodes = text_to_children(strip_new_lines)
             matches = re.findall(r"^#+", block)
             i = len(matches[0])
+            heading_text = strip_new_lines[i:].strip()
+            child_nodes = text_to_children(heading_text)
             node = ParentNode(f"h{i}", child_nodes)
             new_nodes.append(node)
         if block_type == BlockType.QUOTE:
-            child_nodes = text_to_children(block)
+            lines = block.split("\n")
+            cleaned_lines = [line[1:].strip() if line.startswith(">") else line for line in lines]
+            cleaned_block = " ".join(cleaned_lines)
+            child_nodes = text_to_children(cleaned_block)
             node = ParentNode("blockquote", child_nodes)
             new_nodes.append(node)
         if block_type == BlockType.CODE:

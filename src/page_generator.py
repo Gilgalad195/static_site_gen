@@ -6,7 +6,7 @@ def extract_title(markdown):
     lines = markdown.split("\n")
     for line in lines:
         if line.startswith("# "):
-            return line[1:].strip(" ")
+            return line[2:].strip()
     raise Exception("Header 1 not found")
 
 def generate_page(from_path, template_path, dest_path):
@@ -17,6 +17,7 @@ def generate_page(from_path, template_path, dest_path):
         template_contents = template_file.read()
     page_nodes = markdown_to_html_node(from_contents)
     page_content = page_nodes.to_html()
+    print(f"Generated HTML content (first 500 chars): {page_content[:500]}")
     page_title = extract_title(from_contents)
     final_html = template_contents.replace("{{ Content }}", page_content)
     final_html = final_html.replace("{{ Title }}", page_title)
