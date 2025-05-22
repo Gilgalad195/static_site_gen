@@ -1,6 +1,6 @@
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode
-from page_generator import generate_page
+from page_generator import generate_page, generate_pages_recursive
 import os
 import shutil
 
@@ -15,7 +15,7 @@ def main():
     os.mkdir(dest)
     copy_directory_contents(source, dest)
 
-    generate_page("content/index.md", "template.html", "public/index.html")
+    generate_pages_recursive("content", "template.html", "public")
 
 def copy_directory_contents(source, dest):
     directory_list = os.listdir(source)
