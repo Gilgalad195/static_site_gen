@@ -3,21 +3,31 @@ from htmlnode import HTMLNode
 from page_generator import generate_page, generate_pages_recursive
 import os
 import shutil
+import sys
 
 def main():
     print("Checking for existing contents")
-    source = "./static"
-    dest = "./public"
-    if os.path.exists(dest):
+    source_path = "./static"
+    dest_path = "./docs"
+    content_path = "./content"
+    template_path = "./template.html"
+    if os.path.exists(dest_path):
         print("Deleting existing directory")
-        shutil.rmtree(dest)
-    print(f"Creating new {dest} directory")
-    os.mkdir(dest)
-    copy_directory_contents(source, dest)
+        shutil.rmtree(dest_path)
 
-    generate_pages_recursive("content", "template.html", "public")
+    if len(sys.argv) > 1:
+        basepath = sys.argv[1]
+    else:
+        basepath = "/"
+    
+    copy_directory_contents(source_path, dest_path)
+
+    generate_pages_recursive(content_path, template_path, dest_path, basepath)
 
 def copy_directory_contents(source, dest):
+    if not os.path.exists(dest):
+        print(f"Creating new {dest} directory")
+        os.mkdir(dest)
     directory_list = os.listdir(source)
     for item in directory_list:
         old_filepath = os.path.join(source, item)
